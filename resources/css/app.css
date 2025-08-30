@@ -230,7 +230,7 @@
     --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
+    --primary: #465FFF;
     --primary-foreground: oklch(0.985 0 0);
     --secondary: oklch(0.97 0 0);
     --secondary-foreground: oklch(0.205 0 0);
@@ -242,7 +242,7 @@
     --destructive-foreground: oklch(0.577 0.245 27.325);
     --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
-    --ring: oklch(0.87 0 0);
+    --ring: #465FFF;
     --chart-1: oklch(0.646 0.222 41.116);
     --chart-2: oklch(0.6 0.118 184.704);
     --chart-3: oklch(0.398 0.07 227.392);
@@ -251,7 +251,7 @@
     --radius: 0.625rem;
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary: #465FFF;
     --sidebar-primary-foreground: oklch(0.985 0 0);
     --sidebar-accent: oklch(0.97 0 0);
     --sidebar-accent-foreground: oklch(0.205 0 0);
@@ -266,7 +266,7 @@
     --card-foreground: oklch(0.985 0 0);
     --popover: oklch(0.145 0 0);
     --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.985 0 0);
+    --primary: #465FFF;
     --primary-foreground: oklch(0.205 0 0);
     --secondary: oklch(0.269 0 0);
     --secondary-foreground: oklch(0.985 0 0);
@@ -286,7 +286,7 @@
     --chart-5: oklch(0.645 0.246 16.439);
     --sidebar: oklch(0.205 0 0);
     --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.985 0 0);
+    --sidebar-primary: #465FFF;
     --sidebar-primary-foreground: oklch(0.985 0 0);
     --sidebar-accent: oklch(0.269 0 0);
     --sidebar-accent-foreground: oklch(0.985 0 0);
@@ -1002,4 +1002,205 @@ span.flatpickr-weekday {
 .font-tiktok {
     font-family: var(--font-tiktok);
     text-shadow: rgb(0, 0, 0) -0.857143px -0.857143px 0px, rgb(0, 0, 0) 0.857143px -0.857143px 0px, rgb(0, 0, 0) -0.857143px 0.857143px 0px, rgb(0, 0, 0) 0.857143px 0.857143px 0px;
+}
+
+/* Custom CSS for AI Image component */
+.fixed-prompt {
+    left: calc(290px + 24px);
+    width: calc(100% - 290px - 48px);
+}
+
+.fixed-prompt-full {
+    left: calc(90px + 24px);
+    width: calc(100% - 90px - 48px);
+}
+
+.fixed-bubble {
+    left: calc(290px + 24px);
+    width: calc(100% - 290px - 48px);
+}
+
+.fixed-bubble-full {
+    left: calc(90px + 24px);
+    width: calc(100% - 90px - 48px);
+}
+
+@media (max-width: 1023px) {
+    .fixed-prompt,
+    .fixed-bubble {
+        left: 24px;
+        width: calc(100% - 48px);
+    }
+    
+    .fixed-prompt-full,
+    .fixed-bubble-full {
+        left: 16px;
+        width: calc(100% - 32px);
+    }
+}
+
+/* Theme colors */
+.bg-brand-500 {
+    background-color: #3b82f6;
+}
+
+.hover\:bg-brand-600:hover {
+    background-color: #2563eb;
+}
+
+.bg-error-500 {
+    background-color: #ef4444;
+}
+
+.hover\:bg-error-600:hover {
+    background-color: #dc2626;
+}
+
+.text-brand-500 {
+    color: #3b82f6;
+}
+
+.text-error-400 {
+    color: #f87171;
+}
+
+.bg-error-50 {
+    background-color: #fef2f2;
+}
+
+.dark .bg-error-500\/15 {
+    background-color: rgba(239, 68, 68, 0.15);
+}
+
+/* Shadow theme */
+.shadow-theme-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-theme-xl {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Dark theme colors */
+.dark .bg-gray-dark {
+    background-color: #1f2937;
+}
+
+.dark .text-white\/90 {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.dark .text-white\/70 {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.dark .bg-white\/5 {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark .bg-white\/10 {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .bg-white\/15 {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark .bg-white\/20 {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark .bg-white\/25 {
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.dark .hover\:bg-white\/5:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark .hover\:bg-white\/20:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark .hover\:bg-white\/25:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.dark .hover\:bg-gray-800:hover {
+    background-color: #1f2937;
+}
+
+.dark .border-gray-800 {
+    border-color: #1f2937;
+}
+
+.dark .text-gray-300 {
+    color: #d1d5db;
+}
+
+.dark .text-gray-400 {
+    color: #9ca3af;
+}
+
+.dark .hover\:text-gray-200:hover {
+    color: #e5e7eb;
+}
+
+.dark .hover\:text-gray-800:hover {
+    color: #1f2937;
+}
+
+/* Text theme sizes */
+.text-theme-xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+}
+
+/* Drop shadow */
+.drop-shadow-4xl {
+    filter: drop-shadow(0 25px 50px -12px rgba(0, 0, 0, 0.25));
+}
+
+/* No scrollbar */
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Z-index utilities */
+.z-100 {
+    z-index: 100;
+}
+
+/* Size utilities */
+.size-4 {
+    width: 1rem;
+    height: 1rem;
+}
+
+.size-5 {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.size-18 {
+    width: 4.5rem;
+    height: 4.5rem;
+}
+
+/* Stroke width utilities */
+.stroke-\[1\] {
+    stroke-width: 1;
+}
+
+.stroke-\[1\.5\] {
+    stroke-width: 1.5;
+}
+
+.stroke-\[2\] {
+    stroke-width: 2;
 }

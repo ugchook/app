@@ -99,4 +99,33 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(GoogleUser::class);
     }
+
+    /**
+     * Check if user has active subscription
+     */
+    public function hasActiveSubscription(): bool
+    {
+        // TODO: Implement subscription logic
+        // For now, return true to allow development
+        return true;
+    }
+
+    /**
+     * Get user credits
+     */
+    public function getCreditsAttribute(): int
+    {
+        // TODO: Implement credits logic
+        // For now, return 100 to allow development
+        return 100;
+    }
+
+    /**
+     * Decrement user credits
+     */
+    public function decrementCredits(int $amount = 1): void
+    {
+        // TODO: Implement credits decrement logic
+        // For now, do nothing to allow development
+    }
 }

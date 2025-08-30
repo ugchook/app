@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\AiVideo;
-use App\Models\AiImage;
+use App\Models\AiContent;
 use App\Models\User;
 use App\Traits\AiTrait;
 use Illuminate\Http\Request;
@@ -12,7 +11,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class AiVideoController extends Controller
+class AiContentController extends Controller
 {
     use AiTrait;
 
@@ -24,28 +23,17 @@ class AiVideoController extends Controller
         $user = $request->user();
         $page = $request->get('page', 1);
         $limit = $request->get('limit', 12);
-        $status = $request->get('status', 'all');
-        $imageId = $request->get('image_id');
 
-        $query = AiVideo::where('user_id', $user->id);
-
-        if ($status !== 'all') {
-            $query->where('status', $status);
-        }
-
-        if ($imageId) {
-            $query->where('image_id', $imageId);
-        }
-
-        $videos = $query->orderBy('created_at', 'desc')
+        $contents = AiContent::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
             ->paginate($limit, ['*'], 'page', $page);
 
         return response()->json([
             'status' => true,
-            'videos' => $videos->items(),
-            'totalPage' => $videos->lastPage(),
-            'currentPage' => $videos->currentPage(),
-            'total' => $videos->total()
+            'contents' => $contents->items(),
+            'totalPage' => $contents->lastPage(),
+            'currentPage' => $contents->currentPage(),
+            'total' => $contents->total()
         ]);
     }
 
@@ -73,214 +61,199 @@ class AiVideoController extends Controller
 
         $request->validate([
             'prompt' => 'required|string|max:2000',
-            'imageId' => 'required|exists:ai_images,id'
+            'type' => 'required|string|in:News & Updates,Storytelling,Advertising & Marketing,Guides & Education,Entertainment & Interaction,Business & Work,Self-Development,Technology & Future'
         ]);
-
-        // Verify the image belongs to the user
-        $image = AiImage::where('id', $request->imageId)
-            ->where('user_id', $user->id)
-            ->where('status', 'completed')
-            ->first();
-
-        if (!$image) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Invalid or unavailable image'
-            ], 400);
-        }
 
         // Deduct credit
         $user->decrement('credits');
 
-        // Create video record
-        $video = AiVideo::create([
+        // Create content record
+        $content = AiContent::create([
             'user_id' => $user->id,
-            'image_id' => $request->imageId,
             'prompt' => $request->prompt,
+            'type' => $request->type,
             'status' => 'pending',
             'configuration' => json_encode([
-                'image_url' => $image->url,
+                'type' => $request->type,
                 'prompt' => $request->prompt
             ])
         ]);
 
-        // Generate video with AI service
-        $this->generateVideoWithAI($video, $request->prompt, $image);
+        // Generate content with AI service
+        $this->generateContentWithAI($content, $request->prompt, $request->type);
 
         return response()->json([
             'status' => true,
-            'message' => 'Video generation started',
-            'data' => $video
+            'message' => 'Content generation started',
+            'id' => $content->id
         ]);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, AiVideo $aiVideo)
+    public function show(Request $request, AiContent $aiContent)
     {
         $user = $request->user();
         
-        if ($aiVideo->user_id !== $user->id) {
+        if ($aiContent->user_id !== $user->id) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
         }
 
         return response()->json([
             'status' => true,
-            'video' => $aiVideo
+            'content' => $aiContent
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, AiVideo $aiVideo)
+    public function update(Request $request, AiContent $aiContent)
     {
         $user = $request->user();
         
-        if ($aiVideo->user_id !== $user->id) {
+        if ($aiContent->user_id !== $user->id) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
         }
 
         $request->validate([
             'status' => 'sometimes|string|in:pending,processing,completed,failed',
-            'url' => 'sometimes|string|url',
-            'thumbnail_url' => 'sometimes|string|url',
-            'duration' => 'sometimes|numeric',
+            'output' => 'sometimes|array',
             'metadata' => 'sometimes|array'
         ]);
 
-        $aiVideo->update($request->all());
+        $aiContent->update($request->all());
 
         return response()->json([
             'status' => true,
-            'message' => 'Video updated successfully',
-            'data' => $aiVideo
+            'message' => 'Content updated successfully',
+            'data' => $aiContent
         ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, AiVideo $aiVideo)
+    public function destroy(AiContent $aiContent)
     {
-        $user = $request->user();
+        $user = request()->user();
         
-        if ($aiVideo->user_id !== $user->id) {
+        if ($aiContent->user_id !== $user->id) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
         }
 
-        // Delete associated files
-        if ($aiVideo->url) {
-            Storage::delete(str_replace('/storage/', '', $aiVideo->url));
-        }
-
-        if ($aiVideo->thumbnail_url) {
-            Storage::delete(str_replace('/storage/', '', $aiVideo->thumbnail_url));
-        }
-
-        $aiVideo->delete();
+        $aiContent->delete();
 
         return response()->json([
             'status' => true,
-            'message' => 'Video deleted successfully'
+            'message' => 'Content deleted successfully'
         ]);
     }
 
     /**
-     * Generate video using AI service
+     * Generate content using AI service
      */
-    private function generateVideoWithAI($video, $prompt, $image)
+    private function generateContentWithAI($content, $prompt, $type)
     {
         try {
             $service = env('AI_SERVICE', 'bfl');
             
             switch ($service) {
                 case 'bfl':
-                    $this->generateWithBFL($video, $prompt, $image);
+                    $this->generateContentWithBFL($content, $prompt, $type);
                     break;
                 case 'openai':
-                    $this->generateWithOpenAI($video, $prompt, $image);
+                    $this->generateContentWithOpenAI($content, $prompt, $type);
                     break;
                 case 'stability':
-                    $this->generateWithStability($video, $prompt, $image);
+                    $this->generateContentWithStability($content, $prompt, $type);
                     break;
                 default:
-                    $this->generateWithBFL($video, $prompt, $image);
+                    $this->generateContentWithBFL($content, $prompt, $type);
             }
         } catch (\Exception $e) {
-            Log::error('AI Video generation failed: ' . $e->getMessage());
-            $video->update(['status' => 'failed']);
+            Log::error('AI Content generation failed: ' . $e->getMessage());
+            $content->update(['status' => 'failed']);
         }
     }
 
     /**
-     * Generate video with BFL API
+     * Generate content with BFL API
      */
-    private function generateWithBFL($video, $prompt, $image)
+    private function generateContentWithBFL($content, $prompt, $type)
     {
         $apiKey = env('BFL_API_KEY');
         $apiUrl = env('BFL_API_URL', 'https://api.bfl.com');
 
         $payload = [
             'prompt' => $prompt,
-            'image_url' => $image->url,
+            'type' => $type,
             'callback_url' => route('webhook.bfl'),
-            'video_id' => $video->id
+            'content_id' => $content->id
         ];
 
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $apiKey,
             'Content-Type' => 'application/json'
-        ])->post($apiUrl . '/v1/video/generate', $payload);
+        ])->post($apiUrl . '/v1/content/generate', $payload);
 
         if ($response->successful()) {
             $data = $response->json();
-            $video->update([
+            $content->update([
                 'status' => 'processing',
                 'metadata' => json_encode($data)
             ]);
         } else {
-            $video->update(['status' => 'failed']);
+            $content->update(['status' => 'failed']);
             Log::error('BFL API error: ' . $response->body());
         }
     }
 
     /**
-     * Generate video with OpenAI API
+     * Generate content with OpenAI API
      */
-    private function generateWithOpenAI($video, $prompt, $image)
+    private function generateContentWithOpenAI($content, $prompt, $type)
     {
         $apiKey = env('OPENAI_API_KEY');
         
         $payload = [
-            'model' => 'dall-e-3',
-            'prompt' => $prompt,
-            'n' => 1,
-            'size' => '1024x1024'
+            'model' => 'gpt-4',
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => "You are a content creator specializing in {$type}. Create engaging, high-quality content based on the user's prompt."
+                ],
+                [
+                    'role' => 'user',
+                    'content' => $prompt
+                ]
+            ],
+            'max_tokens' => 1000,
+            'temperature' => 0.7
         ];
 
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $apiKey,
             'Content-Type' => 'application/json'
-        ])->post('https://api.openai.com/v1/images/generations', $payload);
+        ])->post('https://api.openai.com/v1/chat/completions', $payload);
 
         if ($response->successful()) {
             $data = $response->json();
-            $video->update([
+            $content->update([
                 'status' => 'processing',
                 'metadata' => json_encode($data)
             ]);
         } else {
-            $video->update(['status' => 'failed']);
+            $content->update(['status' => 'failed']);
             Log::error('OpenAI API error: ' . $response->body());
         }
     }
 
     /**
-     * Generate video with Stability AI API
+     * Generate content with Stability AI API
      */
-    private function generateWithStability($video, $prompt, $image)
+    private function generateContentWithStability($content, $prompt, $type)
     {
         $apiKey = env('STABILITY_API_KEY');
         
@@ -305,13 +278,14 @@ class AiVideoController extends Controller
 
         if ($response->successful()) {
             $data = $response->json();
-            $video->update([
+            $content->update([
                 'status' => 'processing',
                 'metadata' => json_encode($data)
             ]);
         } else {
-            $video->update(['status' => 'failed']);
+            $content->update(['status' => 'failed']);
             Log::error('Stability AI API error: ' . $response->body());
         }
     }
 }
+

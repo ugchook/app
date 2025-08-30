@@ -4,7 +4,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AiImageController;
 use App\Http\Controllers\Api\AiVideoController;
+use App\Http\Controllers\Api\AiContentController;
+use App\Http\Controllers\Api\AiSlideshowController;
 use App\Http\Controllers\Api\CampaignController;
+use App\Http\Controllers\Api\WebhookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,26 +25,50 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // AI Image routes
-Route::middleware('auth:sanctum')->group(function () {
-    Route::prefix('image')->group(function () {
-        Route::get('/list', [AiImageController::class, 'index']);
-        Route::post('/generate', [AiImageController::class, 'store']);
-        Route::get('/{aiImage}', [AiImageController::class, 'show']);
-    });
-
-    // AI Video routes
-    Route::prefix('video')->group(function () {
-        Route::get('/list', [AiVideoController::class, 'index']);
-        Route::post('/generate', [AiVideoController::class, 'store']);
-        Route::get('/{aiVideo}', [AiVideoController::class, 'show']);
-    });
-
-    // Campaign routes
-    Route::prefix('campaign')->group(function () {
-        Route::get('/list', [CampaignController::class, 'index']);
-        Route::post('/create', [CampaignController::class, 'store']);
-        Route::get('/{campaign}', [CampaignController::class, 'show']);
-        Route::put('/{campaign}', [CampaignController::class, 'update']);
-        Route::delete('/{campaign}', [CampaignController::class, 'destroy']);
-    });
+Route::prefix('ai-image')->group(function () {
+    Route::get('/', [AiImageController::class, 'index']);
+    Route::post('/', [AiImageController::class, 'store']);
+    Route::get('/{aiImage}', [AiImageController::class, 'show']);
+    Route::put('/{aiImage}', [AiImageController::class, 'update']);
+    Route::delete('/{aiImage}', [AiImageController::class, 'destroy']);
 });
+
+// AI Video routes
+Route::prefix('ai-video')->group(function () {
+    Route::get('/', [AiVideoController::class, 'index']);
+    Route::post('/', [AiVideoController::class, 'store']);
+    Route::get('/{aiVideo}', [AiVideoController::class, 'show']);
+    Route::put('/{aiVideo}', [AiVideoController::class, 'update']);
+    Route::delete('/{aiVideo}', [AiVideoController::class, 'destroy']);
+});
+
+// AI Content routes
+Route::prefix('ai-content')->group(function () {
+    Route::get('/', [AiContentController::class, 'index']);
+    Route::post('/', [AiContentController::class, 'store']);
+    Route::get('/{aiContent}', [AiContentController::class, 'show']);
+    Route::put('/{aiContent}', [AiContentController::class, 'update']);
+    Route::delete('/{aiContent}', [AiContentController::class, 'destroy']);
+});
+
+// AI Slideshow routes
+Route::prefix('ai-slideshow')->group(function () {
+    Route::get('/', [AiSlideshowController::class, 'index']);
+    Route::post('/', [AiSlideshowController::class, 'store']);
+    Route::get('/{aiSlideshow}', [AiSlideshowController::class, 'show']);
+    Route::put('/{aiSlideshow}', [AiSlideshowController::class, 'update']);
+    Route::delete('/{aiSlideshow}', [AiSlideshowController::class, 'destroy']);
+});
+
+// Campaign routes
+Route::prefix('campaign')->group(function () {
+    Route::get('/', [CampaignController::class, 'index']);
+    Route::post('/', [CampaignController::class, 'store']);
+    Route::get('/{campaign}', [CampaignController::class, 'show']);
+    Route::put('/{campaign}', [CampaignController::class, 'update']);
+    Route::delete('/{campaign}', [CampaignController::class, 'destroy']);
+});
+
+// Webhook routes
+Route::post('/webhook/{service}', [WebhookController::class, 'aiService']);
+Route::post('/webhook/bfl', [WebhookController::class, 'bfl']);
