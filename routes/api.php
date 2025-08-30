@@ -8,6 +8,10 @@ use App\Http\Controllers\Api\AiContentController;
 use App\Http\Controllers\Api\AiSlideshowController;
 use App\Http\Controllers\Api\CampaignController;
 use App\Http\Controllers\Api\WebhookController;
+use App\Http\Controllers\Api\WorkspaceController;
+use App\Http\Controllers\Api\AiVoiceController;
+use App\Http\Controllers\Api\AiAvatarController;
+use App\Http\Controllers\Api\AiLipSyncController;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,6 +71,49 @@ Route::prefix('campaign')->group(function () {
     Route::get('/{campaign}', [CampaignController::class, 'show']);
     Route::put('/{campaign}', [CampaignController::class, 'update']);
     Route::delete('/{campaign}', [CampaignController::class, 'destroy']);
+});
+
+// Workspace routes
+Route::prefix('workspace')->group(function () {
+    Route::get('/', [WorkspaceController::class, 'index']);
+    Route::post('/', [WorkspaceController::class, 'store']);
+    Route::get('/{workspace}', [WorkspaceController::class, 'show']);
+    Route::put('/{workspace}', [WorkspaceController::class, 'update']);
+    Route::delete('/{workspace}', [WorkspaceController::class, 'destroy']);
+    Route::post('/{workspace}/add-user', [WorkspaceController::class, 'addUser']);
+    Route::post('/{workspace}/remove-user', [WorkspaceController::class, 'removeUser']);
+    Route::get('/{workspace}/statistics', [WorkspaceController::class, 'statistics']);
+});
+
+// AI Voice routes
+Route::prefix('ai-voice')->group(function () {
+    Route::get('/', [AiVoiceController::class, 'index']);
+    Route::post('/', [AiVoiceController::class, 'store']);
+    Route::get('/{aiVoice}', [AiVoiceController::class, 'show']);
+    Route::put('/{aiVoice}', [AiVoiceController::class, 'update']);
+    Route::delete('/{aiVoice}', [AiVoiceController::class, 'destroy']);
+    Route::get('/available-voices', [AiVoiceController::class, 'getAvailableVoices']);
+});
+
+// AI Avatar routes
+Route::prefix('ai-avatar')->group(function () {
+    Route::get('/', [AiAvatarController::class, 'index']);
+    Route::post('/', [AiAvatarController::class, 'store']);
+    Route::get('/{aiAvatar}', [AiAvatarController::class, 'show']);
+    Route::put('/{aiAvatar}', [AiAvatarController::class, 'update']);
+    Route::delete('/{aiAvatar}', [AiAvatarController::class, 'destroy']);
+    Route::get('/available-services', [AiAvatarController::class, 'getAvailableServices']);
+});
+
+// AI LipSync routes
+Route::prefix('ai-lip-sync')->group(function () {
+    Route::get('/', [AiLipSyncController::class, 'index']);
+    Route::post('/', [AiLipSyncController::class, 'store']);
+    Route::get('/{aiLipSync}', [AiLipSyncController::class, 'show']);
+    Route::put('/{aiLipSync}', [AiLipSyncController::class, 'update']);
+    Route::delete('/{aiLipSync}', [AiLipSyncController::class, 'destroy']);
+    Route::get('/available-services', [AiLipSyncController::class, 'getAvailableServices']);
+    Route::get('/supported-languages', [AiLipSyncController::class, 'getSupportedLanguages']);
 });
 
 // Webhook routes
